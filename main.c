@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #define LISTFILE "/tmp/list.txt"
-#define MAX_DESCRIPTION_SIZE 25
+#define MAX_DESCRIPTION_SIZE 27
 
 int main(int argc, char *argv[]){
     FILE *fp;
@@ -19,7 +19,7 @@ int main(int argc, char *argv[]){
         int counter = 1;
         while (1) {
             fgets(buff, MAX_DESCRIPTION_SIZE, (FILE*)fp);
-             if ( feof(fp) ) {
+            if ( feof(fp) ) {
                 break;
             }
             printf("%i: %s", counter,  buff);
@@ -29,10 +29,24 @@ int main(int argc, char *argv[]){
 
     } else if (strncmp(argv[1], "add", 3) == 0) { 
       
-        // TODO: Check length of input and limit to MAX_DESCRIPTION_SIZE
+        char buff[MAX_DESCRIPTION_SIZE]; 
+        printf("Enter description for new item (Limit %i): ", MAX_DESCRIPTION_SIZE - 2);
+        fgets(buff, MAX_DESCRIPTION_SIZE, stdin);
+        
+        int counter = 0;
+        int found_new_line = 0;
+        while (counter < MAX_DESCRIPTION_SIZE) {
+            if (strncmp(&buff[counter], "\n", 2) == 0) {
+                found_new_line = 1;
+                break;
+            }
+            if (counter == (MAX_DESCRIPTION_SIZE - 1) && found_new_line == 0) {
+                // swap end char with new line char
+                strncpy(&buff[MAX_DESCRIPTION_SIZE - 2], "\n", 2);
+            }
+            counter++;
+        }
 
-        printf("Enter description for new item (Limit %i): ", MAX_DESCRIPTION_SIZE);
-        fgets(buff, MAX_DESCRIPTION_SIZE, stdin); 
         fp = fopen(LISTFILE, "a");
         fputs(buff, fp);
         fclose(fp);
@@ -49,10 +63,16 @@ int main(int argc, char *argv[]){
         remove(LISTFILE);
         printf("List successfully deleted. \n");
 
+    } else if (strncmp(argv[1], "db", 2) == 0) {
+       
+       printf("Useful command for debugging");
+       // USE THIS TO DEBUG
+
     } else {
 
-        printf("invalid arg passed \n");
-    
+        fprintf(stderr, "Invalid arg passed.\n");
+        return(-1);
+
     }
 
     return 0;
