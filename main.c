@@ -4,32 +4,90 @@
 
 #define LISTFILE "/tmp/list.txt"
 #define MAX_DESCRIPTION_SIZE 27
+#define MAX_REMINDERS 4
+
+struct reminder {
+    char description[MAX_DESCRIPTION_SIZE];
+};
+
+struct reminder reminders[MAX_REMINDERS] = {{0}}; 
+
+int save_storage(FILE *fp) {
+
+    fp = fopen(LISTFILE, "w");
+    if (fp == NULL) {
+        perror("Error opening file");
+        return(-1);
+    };
+
+    int counter = 0;
+    
+    while(1) {
+        if (counter == MAX_REMINDERS) {
+            break;
+        };
+        if (strncmp(reminders[counter].description, "", 1) == 0) {
+            break;
+        };   
+        fputs(reminders[counter].description, fp);
+        counter++;
+    };
+    fclose(fp);
+    printf("Successfully saved reminders.\n");
+    return(0);
+
+};
+
+int load_storage(FILE *fp) {
+    
+    fp = fopen(LISTFILE, "r");
+    if (fp == NULL) {
+        perror("Error opening file");
+        return(-1);
+    };
+    int counter = 0;
+    while (1) {
+        if (counter == MAX_REMINDERS) {
+            break;
+        }
+        fgets(reminders[counter].description, MAX_DESCRIPTION_SIZE, (FILE*)fp);
+        if ( feof(fp) ) {
+            break;
+        }
+        counter++;
+    }
+    fclose(fp);
+    printf("Load file into memory.\n");
+    return(0);
+    
+};
 
 int main(int argc, char *argv[]){
     FILE *fp;
-    char buff[MAX_DESCRIPTION_SIZE];    
+    char buff[MAX_DESCRIPTION_SIZE];
 
     if (strncmp(argv[1], "show", 4) == 0){
         
-        fp = fopen(LISTFILE, "r");
-        if (fp == NULL) {
-            perror("Error opening file");
-            return(-1);
+        int lf = load_storage(fp);
+        if (lf == -1) {
+            return (-1);
         }
-        int counter = 1;
-        while (1) {
-            fgets(buff, MAX_DESCRIPTION_SIZE, (FILE*)fp);
-            if ( feof(fp) ) {
+        int counter = 0;
+        while (counter < MAX_REMINDERS) {
+            if (strncmp(reminders[counter].description, "", 1) == 0) {
                 break;
             }
-            printf("%i: %s", counter,  buff);
+            printf("%i: %s", counter + 1, reminders[counter].description);
             counter++;
         }
-        fclose(fp);
 
     } else if (strncmp(argv[1], "add", 3) == 0) { 
-      
-        char buff[MAX_DESCRIPTION_SIZE]; 
+     
+        int lf = load_storage(fp);
+        if (lf == -1) {
+            return (-1);
+        }
+
         printf("Enter description for new item (Limit %i): ", MAX_DESCRIPTION_SIZE - 2);
         fgets(buff, MAX_DESCRIPTION_SIZE, stdin);
         
@@ -39,17 +97,24 @@ int main(int argc, char *argv[]){
             if (strncmp(&buff[counter], "\n", 2) == 0) {
                 found_new_line = 1;
                 break;
-            }
+            };
             if (counter == (MAX_DESCRIPTION_SIZE - 1) && found_new_line == 0) {
                 // swap end char with new line char
                 strncpy(&buff[MAX_DESCRIPTION_SIZE - 2], "\n", 2);
-            }
+            };
+            counter++;
+        };
+        
+        counter = 0;
+        while (counter < MAX_REMINDERS) {
+            if (strncmp(reminders[counter].description, "", 1) == 0) {
+                strncpy(reminders[counter].description, buff, MAX_DESCRIPTION_SIZE);
+                save_storage(fp);
+                break;
+            };
             counter++;
         }
 
-        fp = fopen(LISTFILE, "a");
-        fputs(buff, fp);
-        fclose(fp);
         printf("New item successfully added to list. \n");
 
     } else if (strncmp(argv[1], "rm", 2) == 0) {
@@ -67,6 +132,7 @@ int main(int argc, char *argv[]){
        
        printf("Useful command for debugging");
        // USE THIS TO DEBUG
+
 
     } else {
 
