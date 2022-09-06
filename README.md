@@ -1,19 +1,20 @@
 # Reminders CLI
 
-A CLI tool for storing and retreiving reminders written in C.
-
-Basic storage implementation finished but lots of work to do!
+A CLI tool for storing and retreiving reminders.
 
 ## Compile and run it
 
 ```bash
 gcc -o remind main.c
 
+# Show reminders
+./remind show
+
 # Add a reminder
 ./remind add
 
-# Show reminders
-./remind show
+# Remove a reminder
+./remind rm [reminder number]
 
 # Delete all reminders from storage
 ./remind dl
