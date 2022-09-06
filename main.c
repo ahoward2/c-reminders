@@ -4,7 +4,7 @@
 
 #define LISTFILE "/tmp/list.txt"
 #define MAX_DESCRIPTION_SIZE 27
-#define MAX_REMINDERS 4
+#define MAX_REMINDERS 50
 
 struct reminder {
     char description[MAX_DESCRIPTION_SIZE];
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]){
      
         int lf = load_storage(fp);
         if (lf == -1) {
-            return (-1);
+            save_storage(fp);
         }
 
         printf("Enter description for new item (Limit %i): ", MAX_DESCRIPTION_SIZE - 2);
@@ -118,11 +118,33 @@ int main(int argc, char *argv[]){
         printf("New item successfully added to list. \n");
 
     } else if (strncmp(argv[1], "rm", 2) == 0) {
+        
+        int input = atoi(argv[2]);
 
-        printf("remove from list of items \n");
+        if ((0 < input ) && (input <= MAX_REMINDERS)) {
+            printf("The reminder you tried to remove: %i\n", input);
+            load_storage(fp);
+            if (strncmp(reminders[input-1].description, "", 1) == 0) {
+                fprintf(stderr, "The reminder you tried to remove does not exist.\n");
+                return(-1);     
+            } else {
+                int counter = input-1; 
+                while(1) {
+                    if (counter == MAX_REMINDERS) {
+                        break;
+                    };
+                    reminders[counter] = reminders[counter + 1];
+                    counter++;
+                };
+            };
+        } else {
+            fprintf(stderr, "The reminder you tried to remove does not exist.\n");
+            return(-1);
+        };
 
-        // TODO: Need implementation for removing individual items from storage
-    
+        save_storage(fp);
+        printf("Reminder has successfully been removed.\n");
+
     } else if (strncmp(argv[1], "dl", 2) == 0) {  
 
         remove(LISTFILE);
