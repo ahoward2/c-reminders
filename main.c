@@ -2,9 +2,19 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define RED     "\x1B[31m"
+#define GRN     "\x1B[32m"
+#define YEL     "\x1B[33m"
+#define BLU     "\x1B[34m"
+#define MAG     "\x1B[35m"
+#define CYN     "\x1B[36m"
+#define WHT     "\x1B[37m"
+#define RESET   "\x1B[0m"
+
 #define LISTFILE "/tmp/list.txt"
 #define MAX_DESCRIPTION_SIZE 27
 #define MAX_REMINDERS 50
+
 
 struct reminder {
     char description[MAX_DESCRIPTION_SIZE];
@@ -16,7 +26,7 @@ int save_storage(FILE *fp) {
 
     fp = fopen(LISTFILE, "w");
     if (fp == NULL) {
-        perror("Error opening file");
+        perror(RED "Error opening file" RESET);
         return(-1);
     };
 
@@ -33,7 +43,6 @@ int save_storage(FILE *fp) {
         counter++;
     };
     fclose(fp);
-    printf("Successfully saved reminders.\n");
     return(0);
 
 };
@@ -42,7 +51,7 @@ int load_storage(FILE *fp) {
     
     fp = fopen(LISTFILE, "r");
     if (fp == NULL) {
-        perror("Error opening file");
+        perror(RED "Error opening file" RESET);
         return(-1);
     };
     int counter = 0;
@@ -57,7 +66,6 @@ int load_storage(FILE *fp) {
         counter++;
     }
     fclose(fp);
-    printf("Load file into memory.\n");
     return(0);
     
 };
@@ -88,7 +96,7 @@ int main(int argc, char *argv[]){
             save_storage(fp);
         }
 
-        printf("Enter description for new item (Limit %i): ", MAX_DESCRIPTION_SIZE - 2);
+        printf(MAG "Enter description for new item (Limit %i): " RESET, MAX_DESCRIPTION_SIZE - 2);
         fgets(buff, MAX_DESCRIPTION_SIZE, stdin);
         
         int counter = 0;
@@ -110,22 +118,20 @@ int main(int argc, char *argv[]){
             if (strncmp(reminders[counter].description, "", 1) == 0) {
                 strncpy(reminders[counter].description, buff, MAX_DESCRIPTION_SIZE);
                 save_storage(fp);
+                printf(GRN "Item successfully added to reminders list.\n" RESET);
                 break;
             };
             counter++;
         }
-
-        printf("New item successfully added to list. \n");
 
     } else if (strncmp(argv[1], "rm", 2) == 0) {
         
         int input = atoi(argv[2]);
 
         if ((0 < input ) && (input <= MAX_REMINDERS)) {
-            printf("The reminder you tried to remove: %i\n", input);
             load_storage(fp);
             if (strncmp(reminders[input-1].description, "", 1) == 0) {
-                fprintf(stderr, "The reminder you tried to remove does not exist.\n");
+                fprintf(stderr, RED "The reminder you tried to remove does not exist.\n" RESET);
                 return(-1);     
             } else {
                 int counter = input-1; 
@@ -138,23 +144,23 @@ int main(int argc, char *argv[]){
                 };
             };
         } else {
-            fprintf(stderr, "The reminder you tried to remove does not exist.\n");
+            
+            fprintf(stderr, RED "The reminder you tried to remove does not exist.\n" RESET);
             return(-1);
-        };
 
+        };
+        printf(GRN "Successfully removed item %i.\n" RESET, input);
         save_storage(fp);
-        printf("Reminder has successfully been removed.\n");
 
     } else if (strncmp(argv[1], "dl", 2) == 0) {  
 
         remove(LISTFILE);
-        printf("List successfully deleted. \n");
+        printf("List successfully deleted. \n" RESET);
 
     } else if (strncmp(argv[1], "db", 2) == 0) {
        
-       printf("Useful command for debugging");
+       printf(GRN "Useful command for debugging.\n" RESET);
        // USE THIS TO DEBUG
-
 
     } else {
 
