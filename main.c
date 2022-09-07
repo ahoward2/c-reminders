@@ -11,8 +11,8 @@
 #define WHT     "\x1B[37m"
 #define RESET   "\x1B[0m"
 
-#define LISTFILE "/tmp/list.txt"
-#define MAX_DESCRIPTION_SIZE 27
+#define LISTFILE "/tmp/remind.txt"
+#define MAX_DESCRIPTION_SIZE 102
 #define MAX_REMINDERS 50
 
 
@@ -80,6 +80,9 @@ int main(int argc, char *argv[]){
         if (lf == -1) {
             return (-1);
         }
+
+        printf(CYN "REMINDERS -----------------------------------------------\n" RESET);
+
         int counter = 0;
         while (counter < MAX_REMINDERS) {
             if (strncmp(reminders[counter].description, "", 1) == 0) {
