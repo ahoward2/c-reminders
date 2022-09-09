@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 
 #define RED     "\x1B[31m"
 #define GRN     "\x1B[32m"
@@ -11,7 +12,8 @@
 #define WHT     "\x1B[37m"
 #define RESET   "\x1B[0m"
 
-#define LISTFILE "/tmp/remind.txt"
+#define STORAGE_DIR "/tmp/remind_storage"
+#define LISTFILE "/tmp/remind_storage/remind.txt"
 #define MAX_DESCRIPTION_SIZE 102
 #define MAX_REMINDERS 50
 
@@ -22,7 +24,28 @@ struct reminder {
 
 struct reminder reminders[MAX_REMINDERS] = {{0}}; 
 
+int directory_exists(char *path) {
+    struct stat stats;
+
+    stat(path, &stats);
+
+    // Check for file existence
+    if (S_ISDIR(stats.st_mode))
+        return 1;
+
+    return 0;
+};
+
+void check_make_dir(char *path) {
+    if (directory_exists(STORAGE_DIR)) {
+    } else {
+        mkdir(STORAGE_DIR, S_IRWXU);
+    };
+};
+
 int save_storage(FILE *fp) {
+
+    check_make_dir(STORAGE_DIR); 
 
     fp = fopen(LISTFILE, "w");
     if (fp == NULL) {
@@ -162,8 +185,8 @@ int main(int argc, char *argv[]){
 
     } else if (strncmp(argv[1], "db", 2) == 0) {
        
-       printf(GRN "Useful command for debugging.\n" RESET);
-       // USE THIS TO DEBUG
+        printf(GRN "Useful command for debugging.\n" RESET);
+        // USE THIS TO DEBUG
 
     } else {
 
